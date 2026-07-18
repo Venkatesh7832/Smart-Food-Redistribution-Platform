@@ -10,6 +10,9 @@ const authRoutes = require("./routes/authRoutes");
 const donationRoutes = require("./routes/donationRoutes");
 const claimRoutes = require("./routes/claimRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const http = require("http");
+const { initializeSocket } = require("./socket/socket.js");
+
 
 dotenv.config();
 
@@ -38,6 +41,13 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
+
+const server = http.createServer(app);
+initializeSocket(server);
+
+server.listen(PORT, () => {
+    console.log(`Server running on ${PORT}`);
 });
