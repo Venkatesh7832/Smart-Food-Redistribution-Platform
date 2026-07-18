@@ -41,6 +41,7 @@ const FilterPanel = ({
         className="min-w-[180px] rounded-lg border border-gray-300 bg-white px-4 py-2 shadow-sm 
                     focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
       >
+        <option value="nearest">Nearest First </option>
         <option value="newest">Newest First</option>
         <option value="oldest">Oldest First</option>
         <option value="expiry">Expiry Time</option>

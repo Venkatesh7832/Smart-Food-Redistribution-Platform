@@ -106,6 +106,14 @@ function DonationCard({
                         📍 Location
                     </button>
 
+                    <div className="flex items-center gap-2 text-green-700">
+                        <span className="font-semibold">
+                            {Number.isFinite(donation.distance)
+                                ? `${donation.distance.toFixed(2)} km away`
+                                : "Location unavailable"}
+                        </span>
+                    </div>
+                    
                 </div>
             </div>
         </div>

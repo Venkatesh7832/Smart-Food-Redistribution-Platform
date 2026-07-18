@@ -16,18 +16,28 @@ import {
     deleteDonation,
 } from "../../services/donationService";
 
+import {
+    calculateDistance,
+} from "../../utils/distanceUtils";
+
 function Donations() {
 
     const [donations, setDonations] = useState([]);
     const [search, setSearch] = useState("");
     const [category, setCategory] = useState("");
     const [status, setStatus] = useState("");
-    const [sort, setSort] = useState("newest");
+    const [sort, setSort] = useState("nearest");
     const [selectedDonation, setSelectedDonation] = useState(null);
     const [showClaimModal, setShowClaimModal] = useState(false);
     const [claimLoading, setClaimLoading] = useState(false);
     const [showLocationCenter, setShowLocationCenter] = useState(false);
 
+    // Temporary NGO/User location
+    const currentLocation = {
+        lat: 17.412,
+        lng: 78.448,
+    };
+    
     useEffect(() => {
         loadDonations();
     }, []);
@@ -91,30 +101,59 @@ function Donations() {
     };
 
     const filteredDonations = donations
-    .filter((donation) => {
-        const query = search.toLowerCase();
-        return (
-            donation.foodName?.toLowerCase().includes(query) ||
-            donation.pickupAddress?.toLowerCase().includes(query) ||
-            donation.donor?.name?.toLowerCase().includes(query)
-        );
-    })
-    .filter((donation) =>
-        category ? donation.category === category : true
-    )
-    .filter((donation) =>
-        status ? donation.status === status : true
-    )
-    .sort((a, b) => {
-        if (sort === "newest")
-            return new Date(b.createdAt) - new Date(a.createdAt);
-        if (sort === "oldest")
-            return new Date(a.createdAt) - new Date(b.createdAt);
-        if (sort === "expiry")
-            return new Date(a.expiryTime) - new Date(b.expiryTime);
-        return 0;
-    });
+        .map((donation) => {
+            const pickup = donation.pickupLocation;
+            if (
+                pickup?.latitude == null ||
+                pickup?.longitude == null
+            ) {
+                return {
+                    ...donation,
+                    distance: Number.MAX_VALUE,
+                };
+            }
+            const distance = calculateDistance(
+                currentLocation,
+                {
+                    lat: pickup.latitude,
+                    lng: pickup.longitude,
+                }
+            );
+            return {
+                ...donation,
+                distance,
+            };
+        })
+        .filter((donation) => {
+            const query = search.toLowerCase();
+            return (
+                donation.foodName?.toLowerCase().includes(query) ||
+                donation.pickupAddress?.toLowerCase().includes(query) ||
+                donation.donor?.name?.toLowerCase().includes(query)
+            );
+        })
+        .filter((donation) =>
+            category
+                ? donation.category === category
+                : true
+        )
+        .filter((donation) =>
+            status
+                ? donation.status === status
+                : true
+        )
+        .sort((a, b) => {
+            if (sort === "nearest")
+                return a.distance - b.distance;
+            if (sort === "newest")
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            if (sort === "oldest")
+                return new Date(a.createdAt) - new Date(b.createdAt);
+            if (sort === "expiry")
+                return new Date(a.expiryTime) - new Date(b.expiryTime);
 
+            return 0;
+        });
 
     return (
         <div className="flex min-h-screen bg-slate-100">
