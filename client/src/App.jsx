@@ -4,7 +4,7 @@ import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import Dashboard from "./pages/Dashboard/Dashboard";
-
+import Profile from "./pages/Profile/Profile";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Donations from "./pages/Donations/Donations";
 import CreateDonation from "./pages/Donations/CreateDonation";
@@ -15,15 +15,10 @@ function App() {
     return (
 
         <BrowserRouter>
-
             <Routes>
-
                 <Route path="/" element={<Home />} />
-
                 <Route path="/login" element={<Login />} />
-
                 <Route path="/register" element={<Register />} />
-
                 <Route
                     path="/dashboard"
                     element={
@@ -33,12 +28,18 @@ function App() {
                     }
                 />
                 <Route
-
                     path="/donations"
-
                     element={
                         <ProtectedRoute>
                         <Donations/>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/profile"
+                    element={
+                        <ProtectedRoute>
+                            <Profile />
                         </ProtectedRoute>
                     }
                 />
@@ -59,11 +60,8 @@ function App() {
                         }
                     />
             </Routes>
-
         </BrowserRouter>
-
     );
-
 }
 
 export default App;

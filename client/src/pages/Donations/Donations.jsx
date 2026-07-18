@@ -4,14 +4,12 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import Sidebar from "../../components/dashboard/Sidebar";
-
 import DonationCard from "../../components/donations/DonationCard";
 import SearchBar from "../../components/donations/SearchBar";
 import FilterPanel from "../../components/donations/FilterPanel";
 import ClaimModal from "../../components/donations/ClaimModal";
 import { claimDonation } from "../../services/donationService";
-import MapModal from "../../components/maps/MapModal";
-
+import LocationCenterModal from "../../components/maps/LocationCenterModal";
 
 import {
     getDonations,
@@ -28,107 +26,73 @@ function Donations() {
     const [selectedDonation, setSelectedDonation] = useState(null);
     const [showClaimModal, setShowClaimModal] = useState(false);
     const [claimLoading, setClaimLoading] = useState(false);
-    const [showMap, setShowMap] = useState(false);
-    const [showRoute,setShowRoute]=useState(false);
+    const [showLocationCenter, setShowLocationCenter] = useState(false);
 
     useEffect(() => {
-
         loadDonations();
-
     }, []);
 
     const loadDonations = async () => {
-
         try {
-
             const res =
                 await getDonations();
-
             setDonations(res.data.donations);
-
         } catch {
-
             toast.error(
                 "Unable to fetch donations"
             );
-
         }
 
     };
 
-    const handleViewMap = (donation) => {
+    const handleLocation = (donation) => {
         setSelectedDonation(donation);
-        setShowMap(true);
+        setShowLocationCenter(true);
     };
-
+    
     const handleDelete = async (id) => {
-
         try {
-
             await deleteDonation(id);
-
             toast.success(
                 "Donation deleted"
             );
-
             loadDonations();
-
         } catch {
-
             toast.error(
                 "Delete failed"
             );
-
         }
-
     };
 
     const handleClaimClick = (donation) => {
         setSelectedDonation(donation);
         setShowClaimModal(true);
-
     };
 
-    const handleRoute=(donation)=>{
-        setSelectedDonation(donation);
-        setShowRoute(true);
-    }
-
     const handleClaimConfirm = async (quantity) => {
-
         try {
-
             setClaimLoading(true);
-
             await claimDonation(
                 selectedDonation._id,
                 quantity
             );
-
             toast.success("Donation claimed successfully");
             setShowClaimModal(false);
             setSelectedDonation(null);
             await loadDonations();
-
         } catch (error) {
-
             toast.error(
                 error.response?.data?.message ||
                 "Unable to claim donation"
             );
-
         } finally {
-
             setClaimLoading(false);
-
         }
-
     };
 
     const filteredDonations = donations
     .filter((donation) => {
         const query = search.toLowerCase();
-
         return (
             donation.foodName?.toLowerCase().includes(query) ||
             donation.pickupAddress?.toLowerCase().includes(query) ||
@@ -144,61 +108,43 @@ function Donations() {
     .sort((a, b) => {
         if (sort === "newest")
             return new Date(b.createdAt) - new Date(a.createdAt);
-
         if (sort === "oldest")
             return new Date(a.createdAt) - new Date(b.createdAt);
-
         if (sort === "expiry")
             return new Date(a.expiryTime) - new Date(b.expiryTime);
-
         return 0;
     });
 
 
     return (
         <div className="flex min-h-screen bg-slate-100">
-
             <Sidebar />
-
             <main className="flex-1 overflow-auto">
-
                 <div className="mx-auto max-w-7xl p-8">
-
                     {/* Header */}
-
                     <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-
                         <div>
-
                             <h1 className="text-4xl font-bold text-slate-800">
                                 Donations
                             </h1>
-
                             <p className="mt-1 text-slate-500">
                                 Manage all food donations
                             </p>
-
                         </div>
-
                         <Link
                             to="/donations/create"
                             className="rounded-xl bg-green-600 px-6 py-3 font-semibold text-white shadow hover:bg-green-700"
                         >
                             + New Donation
                         </Link>
-
                     </div>
-
                     {/* Search */}
-
                     <SearchBar
                         value={search}
                         onChange={setSearch}
                         placeholder="Search food, donor or location, address..."
                     />
-
                     {/* Filters */}
-
                     <FilterPanel
                         category={category}
                         setCategory={setCategory}
@@ -207,13 +153,9 @@ function Donations() {
                         sort={sort}
                         setSort={setSort}
                     />
-
                     {/* Grid */}
-
                     <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-
                         {filteredDonations.length > 0 ? (
-
                             filteredDonations.map((donation) => (
 
                                 <DonationCard
@@ -221,33 +163,20 @@ function Donations() {
                                     donation={donation}
                                     onDelete={handleDelete}
                                     onClaim={handleClaimClick}
-                                    onViewMap={handleViewMap}
+                                    onLocation={handleLocation}
                                 />
-
                             ))
-
                         ) : (
-
                             <div className="col-span-full rounded-xl bg-white p-10 text-center shadow">
-
                                 <h2 className="text-2xl font-semibold text-gray-700">
-
                                     No Donations Found
-
                                 </h2>
-
                                 <p className="mt-2 text-gray-500">
-
                                     Try changing your search or filters.
-
                                 </p>
-
                             </div>
-
                         )}
-
                     </div>
-
                 </div>
 
                 <ClaimModal
@@ -259,29 +188,16 @@ function Donations() {
                         setSelectedDonation(null);
                     }}
                     onConfirm={handleClaimConfirm}
-                    onViewMap={handleViewMap}
                 />
 
-                <MapModal
-                    open={showMap}
+                <LocationCenterModal
+                    open={showLocationCenter}
                     donation={selectedDonation}
                     onClose={() => {
-                        setShowMap(false);
+                        setShowLocationCenter(false);
                         setSelectedDonation(null);
                     }}
                 />
-
-
-            <RouteModal
-                open={showRoute}
-                donation={selectedDonation}
-                onClose={()=>{
-                setShowRoute(false);
-                setSelectedDonation(null);
-                }}
-            />
-            
-
 
             </main>
 

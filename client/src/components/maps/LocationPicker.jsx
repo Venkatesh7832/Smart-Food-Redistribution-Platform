@@ -7,6 +7,8 @@ import {
     useMapEvents,
 } from "react-leaflet";
 
+import RouteMap from "./RouteMap";
+
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
