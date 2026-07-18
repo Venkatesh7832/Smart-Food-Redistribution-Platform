@@ -1,8 +1,12 @@
+import { Link } from "react-router-dom";
 import {
     Calendar,
     Package,
-    Trash2,
+    MapPin,
+    FileText,
     Pencil,
+    Trash2,
+    Handshake,
 } from "lucide-react";
 
 import StatusBadge from "./StatusBadge";
@@ -10,89 +14,160 @@ import StatusBadge from "./StatusBadge";
 function DonationCard({
     donation,
     onDelete,
-    onEdit,
     onClaim,
+    onViewMap
 }) {
 
     return (
 
-        <div className="bg-white rounded-xl shadow p-6">
+        <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 overflow-hidden">
 
-            <h2 className="text-2xl font-bold">
+            {/* Header */}
 
-                {donation.foodName}
+            <div className="p-5 border-b">
 
-            </h2>
+                <div className="flex justify-between items-start">
 
-            <div className="mt-4 space-y-2">
+                    <h2 className="text-xl font-bold text-gray-800">
 
-                <p>
+                        {donation.foodName}
 
-                    <Package
-                        className="inline mr-2"
-                        size={18}
-                    />
+                    </h2>
 
-                    {donation.availableQuantity} Meals
+                    <StatusBadge status={donation.status} />
 
-                </p>
-
-                <p>
-
-                    {donation.description}
-
-                </p>
-
-                <p>
-
-                    <Calendar
-                        className="inline mr-2"
-                        size={18}
-                    />
-
-                    {new Date(
-                        donation.expiryTime
-                    ).toLocaleString()}
-
-                </p>
+                </div>
 
             </div>
 
-            <div className="flex gap-3 mt-6">
+            {/* Body */}
 
-                <button
-                    onClick={() => onEdit(donation)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded"
-                >
-                    <Pencil size={18}/>
-                </button>
+            <div className="p-5 space-y-4">
 
-                <button
-                    onClick={() => onDelete(donation._id)}
-                    className="bg-red-600 text-white px-4 py-2 rounded"
-                >
-                    <Trash2 size={18}/>
-                </button>
+                <div className="flex items-center gap-2 text-gray-700">
 
-                <Link
-                    to={`/donations/edit/${donation._id}`}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg" >
-                    Edit
-                </Link>
+                    <Package size={18} />
 
-                {
-                    <StatusBadge status={donation.status} /> === "available" &&
+                    <span>
+                        <strong>
+                            {donation.remainingQuantity ??
+                                donation.availableQuantity}
+                        </strong>{" "}
+                        Meals Available
+                    </span>
 
-                    <button
-                        onClick={() => onClaim(donation)}
-                        className="bg-green-600 text-white px-4 py-2 rounded"
+                </div>
+
+                <div className="flex items-start gap-2 text-gray-700">
+
+                    <MapPin size={18} className="mt-1"/>
+
+                    <span>
+
+                        {donation.pickupAddress}
+
+                    </span>
+
+                </div>
+
+                <div className="flex items-start gap-2 text-gray-700">
+
+                    <FileText size={18} className="mt-1"/>
+
+                    <span>
+
+                        {donation.description}
+
+                    </span>
+
+                </div>
+
+                <div className="flex items-center gap-2 text-gray-700">
+
+                    <Calendar size={18} />
+
+                    <span>
+
+                        {new Date(
+                            donation.expiryTime
+                        ).toLocaleString()}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+            {/* Footer */}
+
+            <div className="bg-gray-50 border-t p-4">
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    
+
+                    <Link
+                        to={`/donations/edit/${donation._id}`}
+                        className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 transition"
                     >
 
-                        Claim
+                        <Pencil size={18} />
+
+                        Edit
+
+                    </Link>
+
+                    <button
+                        onClick={() => onDelete(donation._id)}
+                        className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white rounded-lg py-2 transition"
+                    >
+
+                        <Trash2 size={18} />
+
+                        Delete
 
                     </button>
 
-                }
+                    {donation.status === "available" ? (
+
+                        <button
+                            onClick={() => onClaim(donation)}
+                            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white rounded-lg py-2 transition"
+                        >
+
+                            <Handshake size={18} />
+
+                            Claim
+
+                        </button>
+
+                    ) : (
+
+                        <button
+                            disabled
+                            className="bg-gray-300 text-gray-600 rounded-lg py-2 cursor-not-allowed"
+                        >
+
+                            Claimed
+
+                        </button>
+
+                    )}
+
+                    <button
+                        onClick={() => onViewMap(donation)}
+                        className="rounded-lg bg-slate-700 py-2 text-white hover:bg-slate-800"
+                    >
+                        🗺 View Map
+                    </button>
+
+                    <button
+                        onClick={()=>onRoute(donation)}
+                        className="bg-indigo-600 text-white rounded-lg py-2 hover:bg-indigo-700"
+                        >
+                        🚗 Route
+                    </button>
+
+                </div>
 
             </div>
 

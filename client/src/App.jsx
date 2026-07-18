@@ -8,7 +8,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Donations from "./pages/Donations/Donations";
 import CreateDonation from "./pages/Donations/CreateDonation";
-import EditDonation from "../pages/donations/EditDonation";
+import EditDonation from "./pages/Donations/EditDonation";
 
 function App() {
 

@@ -48,6 +48,17 @@ const foodDonationSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    
+    pickupLocation: {
+        latitude: {
+            type: Number,
+            default: null,
+        },
+        longitude: {
+            type: Number,
+            default: null,
+        },
+    },
 
     status:{
         type:String,

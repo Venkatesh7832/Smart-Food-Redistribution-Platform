@@ -11,7 +11,12 @@ const createDonation = async (req, res) => {
 
             createdBy: req.user.id,
 
-            remainingQuantity: req.body.totalQuantity
+            remainingQuantity: req.body.totalQuantity,
+
+            pickupLocation: {
+                latitude: req.body.latitude || null,
+                longitude: req.body.longitude || null,
+            }
 
         });
 
@@ -37,7 +42,7 @@ const getAllDonations = async (req, res) => {
 
         const donations = await FoodDonation
             .find()
-            .populate("donor", "name email phone")
+            .populate("createdBy", "name email phone")
             .sort({ createdAt: -1 });
 
         res.json({
@@ -62,7 +67,7 @@ const getDonationById = async (req, res) => {
 
         const donation = await FoodDonation
             .findById(req.params.id)
-            .populate("donor", "name email phone");
+            .populate("createdBy", "name email phone");
 
         if (!donation) {
             return res.status(404).json({
@@ -107,13 +112,14 @@ const claimDonation = async (req, res) => {
         }
 
         donation.status = "claimed";
-        donation.claimedBy = req.user.id;
+        // donation.claimedBy = req.user.id; // This line is commented out because claimedBy is not defined in the schema
 
         await donation.save();
 
         const updatedDonation = await FoodDonation.findById(donation._id)
-            .populate("donor", "name email")
-            .populate("claimedBy", "name email");
+            .populate("createdBy", "name email")
+            // .populate("claimedBy", "name email"); 
+            // Now claimedBy is not defined in the schema, so this line is commented out
 
         res.status(200).json({
             success: true,
@@ -188,6 +194,16 @@ const updateDonation = async (req, res) => {
 
         donation.pickupAddress =
             req.body.pickupAddress || donation.pickupAddress;
+        
+        if (
+            req.body.latitude !== undefined &&
+            req.body.longitude !== undefined
+        ) {
+            donation.pickupLocation = {
+                latitude: req.body.latitude,
+                longitude: req.body.longitude,
+            };
+        }
 
         donation.expiryTime =
             req.body.expiryTime || donation.expiryTime;
